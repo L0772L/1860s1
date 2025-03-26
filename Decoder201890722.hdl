@@ -28,17 +28,31 @@ CHIP Decoder201890722 {
     And(a=b_pa, b=b_pb, out=b_pd);
     And(a=b_pd, b=b_pc, out=b);
 
-    // Segment c (Lower-right) - 已修复大小写问题
-    And(a=notB, b=C, out=cAndnotb);      // 使用大写的C
-    And(a=C, b=notD, out=cAndnotd);      // 使用大写的C
-    And(a=A, b=notB, out=aAndnotb);
+   CHIP DecoderSegment201890722 {
+    IN A, B, C, D;
+    OUT c;
+
+    PARTS:
+    // 1. 创建反向信号
+    Not(in=A, out=NOTA);
+    Not(in=B, out=NOTB);
+    Not(in=C, out=NOTC);
+    Not(in=D, out=NOTD);
+
+    // 2. 创建中间AND门
+    And(a=NOTB, b=C, out=cAndnotb);
+    And(a=C, b=NOTD, out=cAndnotd);
+    And(a=A, b=NOTB, out=aAndnotb);
     And(a=A, b=D, out=aandd);
-    And(a=notC, b=notA, out=out1);
+    And(a=NOTC, b=NOTA, out=out1);
     And(a=B, b=out1, out=bandout);
+
+    // 3. 最终OR门组合（修正了错误的"0r5"为"Or"）
     Or(a=cAndnotb, b=cAndnotd, out=or1);
     Or(a=aAndnotb, b=aandd, out=or2);
     Or(a=or1, b=or2, out=or3);
-    Or(a=or3, b=bandout, out=c);         // 输出用小写的c
+    Or(a=or3, b=bandout, out=c);
+}
 
     // Segment d (Bottom)
     And(a=notA, b=B, c=notC, out=d_term1);
