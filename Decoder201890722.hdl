@@ -1,106 +1,93 @@
 /**
  * 7-Segment Hexadecimal Decoder
  * Student ID: 201890722
- * Implements display logic for all segments (a-g)
+ * Corrected version with proper pin naming
  */
 CHIP Decoder201890722 {
     IN A, B, C, D;  // 4-bit input (D is MSB)
-    OUT a, b, c, d, e, f, g;  // Segment outputs
+    OUT a, b, c, d, e, f, g;  // Segment outputs (lowercase)
 
     PARTS:
-    // Shared input inversions
+    // ===== Shared Input Inversions =====
     Not(in=A, out=notA);
     Not(in=B, out=notB);
     Not(in=C, out=notC);
     Not(in=D, out=notD);
 
-    // Segment a (Top)
-    And(a=notA, b=notB, c=notC, d=D, out=a_term1);
-    And(a=notA, b=B, c=notC, d=notD, out=a_term2);
-    Or(a=a_term1, b=a_term2, out=a);
+    // ===== Segment a (Top) =====
+    And(a=notA, b=notB, c=notC, d=D, out=a1);
+    And(a=notA, b=B, c=notC, d=notD, out=a2);
+    Or(a=a1, b=a2, out=a);
 
-    // Segment b (Upper-right)
-    Or(a=C, b=notD, out=b_CorNotD);      // 使用大写的C
-    Or(a=notB, b=A, out=b_notBorA);
-    And(a=b_CorNotD, b=B, out=b_pa);
-    Or(a=C, b=b_notBorA, out=b_pb);      // 使用大写的C
-    Or(a=notD, b=A, out=b_pc);
-    And(a=b_pa, b=b_pb, out=b_pd);
-    And(a=b_pd, b=b_pc, out=b);
+    // ===== Segment b (Upper-right) =====
+    Or(a=C, b=notD, out=b1);  // 使用大写的C
+    Or(a=notB, b=A, out=b2);
+    And(a=b1, b=B, out=b3);
+    Or(a=C, b=b2, out=b4);     // 使用大写的C
+    Or(a=notD, b=A, out=b5);
+    And(a=b3, b=b4, out=b6);
+    And(a=b6, b=b5, out=b);
 
-   CHIP DecoderSegment201890722 {
-    IN A, B, C, D;
-    OUT c;
+    // ===== Segment c (Lower-right) =====
+    // 修正点：第18行使用大写的C
+    And(a=notB, b=C, out=c1);  // 原错误行，已修正为C
+    And(a=C, b=notD, out=c2);  // 使用大写的C
+    And(a=A, b=notB, out=c3);
+    And(a=A, b=D, out=c4);
+    And(a=notC, b=notA, out=c5);
+    And(a=B, b=c5, out=c6);
+    Or(a=c1, b=c2, out=c7);
+    Or(a=c3, b=c4, out=c8);
+    Or(a=c7, b=c8, out=c9);
+    Or(a=c9, b=c6, out=c);  // 输出使用小写的c
 
-    PARTS:
-    // 1. 创建反向信号
-    Not(in=A, out=NOTA);
-    Not(in=B, out=NOTB);
-    Not(in=C, out=NOTC);
-    Not(in=D, out=NOTD);
+    // ===== Segment d (Bottom) =====
+    And(a=notA, b=B, c=notC, out=d1);
+    And(a=A, b=notB, out=d2);
+    And(a=A, b=C, out=d3);      // 使用大写的C
+    And(a=notC, b=notD, out=d4);
+    And(a=B, b=notD, out=d5);
+    Or(a=d1, b=d2, out=d6);
+    Or(a=d3, b=d4, out=d7);
+    Or(a=d5, b=d7, out=d8);
+    Or(a=d6, b=d8, out=d);
 
-    // 2. 创建中间AND门
-    And(a=NOTB, b=C, out=cAndnotb);
-    And(a=C, b=NOTD, out=cAndnotd);
-    And(a=A, b=NOTB, out=aAndnotb);
-    And(a=A, b=D, out=aandd);
-    And(a=NOTC, b=NOTA, out=out1);
-    And(a=B, b=out1, out=bandout);
+    // ===== Segment e (Lower-left) =====
+    And(a=notA, b=B, out=e1);
+    And(a=A, b=notB, out=e2);
+    And(a=notC, b=D, out=e3);
+    And(a=notA, b=notC, out=e4);
+    And(a=notA, b=D, out=e5);
+    Or(a=e1, b=e2, out=e6);
+    Or(a=e3, b=e4, out=e7);
+    Or(a=e6, b=e7, out=e8);
+    Or(a=e8, b=e5, out=e);
 
-    // 3. 最终OR门组合（修正了错误的"0r5"为"Or"）
-    Or(a=cAndnotb, b=cAndnotd, out=or1);
-    Or(a=aAndnotb, b=aandd, out=or2);
-    Or(a=or1, b=or2, out=or3);
-    Or(a=or3, b=bandout, out=c);
-}
+    // ===== Segment f (Upper-left) =====
+    And(a=notA, b=C, out=f1);   // 使用大写的C
+    And(a=B, b=C, out=f2);      // 使用大写的C
+    And(a=notB, b=C, c=notD, out=f3); // 使用大写的C
+    And(a=notA, b=B, c=D, out=f4);
+    And(a=A, b=notB, c=notC, out=f5);
+    And(a=notB, b=notC, c=notD, out=f6);
+    And(a=A, b=notC, c=notD, out=f7);
+    Or(a=f1, b=f2, out=f8);
+    Or(a=f3, b=f4, out=f9);
+    Or(a=f8, b=f9, out=f10);
+    Or(a=f5, b=f6, out=f11);
+    Or(a=f11, b=f7, out=f12);
+    Or(a=f10, b=f12, out=f);
 
-    // Segment d (Bottom)
-    And(a=notA, b=B, c=notC, out=d_term1);
-    And(a=A, b=notB, out=d_term2);
-    And(a=A, b=C, out=d_term3);          // 使用大写的C
-    And(a=notC, b=notD, out=d_term4);
-    And(a=B, b=notD, out=d_term5);
-    Or(a=d_term1, b=d_term2, out=d_ans1);
-    Or(a=d_term3, b=d_term4, out=d_ans2a);
-    Or(a=d_term5, b=d_ans2a, out=d_ans2);
-    Or(a=d_ans1, b=d_ans2, out=d);
-
-    // Segment e (Lower-left)
-    And(a=notA, b=B, out=e_term1);
-    And(a=A, b=notB, out=e_term2);
-    And(a=notC, b=D, out=e_term3);
-    And(a=notA, b=notC, out=e_term4);
-    And(a=notA, b=D, out=e_term5);
-    Or(a=e_term1, b=e_term2, out=e_inter1);
-    Or(a=e_term3, b=e_term4, out=e_inter2);
-    Or(a=e_inter1, b=e_inter2, out=e_inter3);
-    Or(a=e_inter3, b=e_term5, out=e);
-
-    // Segment f (Upper-left)
-    And(a=notA, b=C, out=f_term1);       // 使用大写的C
-    And(a=B, b=C, out=f_term2);          // 使用大写的C
-    And(a=notB, b=C, c=notD, out=f_term3); // 使用大写的C
-    And(a=notA, b=B, c=D, out=f_term4);
-    And(a=A, b=notB, c=notC, out=f_term5);
-    And(a=notB, b=notC, c=notD, out=f_term6);
-    And(a=A, b=notC, c=notD, out=f_term7);
-    Or(a=f_term1, b=f_term2, out=f_inter1);
-    Or(a=f_term3, b=f_term4, out=f_inter2);
-    Or(a=f_inter1, b=f_inter2, out=f_inter3);
-    Or(a=f_term5, b=f_term6, out=f_inter4);
-    Or(a=f_inter4, b=f_term7, out=f_inter5);
-    Or(a=f_inter3, b=f_inter5, out=f);
-
-    // Segment g (Middle)
-    And(a=notA, b=notB, c=notC, out=g_PartA);
-    And(a=notA, b=B, c=notC, d=notD, out=g_PartG);
-    And(a=notA, b=B, c=C, d=D, out=g_PartB);      // 使用大写的C
-    And(a=A, b=notB, c=notC, d=notD, out=g_PartC);
-    And(a=A, b=notB, c=C, d=notD, out=g_PartD);   // 使用大写的C
-    And(a=A, b=B, c=notC, d=D, out=g_PartE);
-    Or(a=g_PartA, b=g_PartB, out=g_FirstThird);
-    Or(a=g_PartC, b=g_PartD, out=g_SecondThird);
-    Or(a=g_PartE, b=g_PartG, out=g_ThirdThirds);
-    Or(a=g_FirstThird, b=g_SecondThird, out=g_TwoThirds);
-    Or(a=g_TwoThirds, b=g_ThirdThirds, out=g);
+    // ===== Segment g (Middle) =====
+    And(a=notA, b=notB, c=notC, out=g1);
+    And(a=notA, b=B, c=notC, d=notD, out=g2);
+    And(a=notA, b=B, c=C, d=D, out=g3);  // 使用大写的C
+    And(a=A, b=notB, c=notC, d=notD, out=g4);
+    And(a=A, b=notB, c=C, d=notD, out=g5); // 使用大写的C
+    And(a=A, b=B, c=notC, d=D, out=g6);
+    Or(a=g1, b=g3, out=g7);
+    Or(a=g4, b=g5, out=g8);
+    Or(a=g2, b=g6, out=g9);
+    Or(a=g7, b=g8, out=g10);
+    Or(a=g10, b=g9, out=g);
 }
