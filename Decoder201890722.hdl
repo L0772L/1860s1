@@ -1,93 +1,135 @@
-/**
- * 7-Segment Hexadecimal Decoder
- * Student ID: 201890722
- * Corrected version with proper pin naming
- */
 CHIP Decoder201890722 {
-    IN A, B, C, D;  // 4-bit input (D is MSB)
-    OUT a, b, c, d, e, f, g;  // Segment outputs (lowercase)
+    IN A, B, C, D;
+    OUT a, b, c, d, e, f, g;
 
     PARTS:
-    // ===== Shared Input Inversions =====
-    Not(in=A, out=notA);
-    Not(in=B, out=notB);
-    Not(in=C, out=notC);
-    Not(in=D, out=notD);
+    // --- b 的逻辑 ---
+    Not(in=B,out=NotBb);
+    Not(in=D,out=NotDb);
+    Or(a=C,b=NotDb,out=CandNOTDb);
+    Or(a=B,b=CandNOTDb,out=pab);
+    Or(a=NotBb,b=A,out=NotBandAb);
+    Or(a=C,b=NotBandAb,out=pbb);
+    Or(a=NotDb,b=A,out=pcb);
+    And(a=pab,b=pbb,out=pdb);
+    And(a=pdb,b=pcb,out=b);
 
-    // ===== Segment a (Top) =====
-    And(a=notA, b=notB, c=notC, d=D, out=a1);
-    And(a=notA, b=B, c=notC, d=notD, out=a2);
-    Or(a=a1, b=a2, out=a);
+    // --- g 的逻辑 ---
+    Not(in = A, out = NOTAg);
+    Not(in = B, out = NOTBg);
+    Not(in = C, out = NOTCg);
+    Not(in = D, out = NOTDg);
 
-    // ===== Segment b (Upper-right) =====
-    Or(a=C, b=notD, out=b1);  // 使用大写的C
-    Or(a=notB, b=A, out=b2);
-    And(a=b1, b=B, out=b3);
-    Or(a=C, b=b2, out=b4);     // 使用大写的C
-    Or(a=notD, b=A, out=b5);
-    And(a=b3, b=b4, out=b6);
-    And(a=b6, b=b5, out=b);
+    And(a = NOTBg, b = NOTDg, out = P1g);
+    And(a = NOTBg, b = NOTCg, out = P2g);
+    And(a = NOTAg, b = C, out = NOTAcg);
+    And(a = NOTAcg, b = D, out = P3g);
+    And(a = A, b = NOTCg, out = ANOTCg);
+    And(a = ANOTCg, b = D, out = P4g);
+    And(a = NOTAg, b = NOTCg, out = NOTACg);
+    And(a = NOTACg, b = NOTDg, out = P5g);
 
-    // ===== Segment c (Lower-right) =====
-    // 修正点：第18行使用大写的C
-    And(a=notB, b=C, out=c1);  // 原错误行，已修正为C
-    And(a=C, b=notD, out=c2);  // 使用大写的C
-    And(a=A, b=notB, out=c3);
-    And(a=A, b=D, out=c4);
-    And(a=notC, b=notA, out=c5);
-    And(a=B, b=c5, out=c6);
-    Or(a=c1, b=c2, out=c7);
-    Or(a=c3, b=c4, out=c8);
-    Or(a=c7, b=c8, out=c9);
-    Or(a=c9, b=c6, out=c);  // 输出使用小写的c
+    Or(a = P1g, b = P2g, out = ag1);
+    Or(a = ag1, b = P3g, out = ag2);
+    Or(a = ag2, b = P4g, out = ag3);
+    Or(a = ag3, b = P5g, out = g);
 
-    // ===== Segment d (Bottom) =====
-    And(a=notA, b=B, c=notC, out=d1);
-    And(a=A, b=notB, out=d2);
-    And(a=A, b=C, out=d3);      // 使用大写的C
-    And(a=notC, b=notD, out=d4);
-    And(a=B, b=notD, out=d5);
-    Or(a=d1, b=d2, out=d6);
-    Or(a=d3, b=d4, out=d7);
-    Or(a=d5, b=d7, out=d8);
-    Or(a=d6, b=d8, out=d);
+    // --- f 的逻辑 ---
+    Not(in = A, out = NOTAf);
+    Not(in = B, out = NOTBf);
+    Not(in = C, out = NOTCf);
+    Not(in = D, out = NOTDf);
 
-    // ===== Segment e (Lower-left) =====
-    And(a=notA, b=B, out=e1);
-    And(a=A, b=notB, out=e2);
-    And(a=notC, b=D, out=e3);
-    And(a=notA, b=notC, out=e4);
-    And(a=notA, b=D, out=e5);
-    Or(a=e1, b=e2, out=e6);
-    Or(a=e3, b=e4, out=e7);
-    Or(a=e6, b=e7, out=e8);
-    Or(a=e8, b=e5, out=e);
+    And(a = NOTBf, b = NOTDf, out = P1f);
+    And(a = B, b = C, out = P2f);
+    And(a = A, b = NOTDf, out = P3f);
+    And(a = NOTAf, b = C, out = P4f);
+    And(a = A, b = NOTBc, out = NOTBaf);
+    And(a = NOTBaf, b = NOTCf, out = P5f);
+    And(a = NOTAf, b = B, out = NOTAbf);
+    And(a = NOTAbf, b = D, out = P6f);
 
-    // ===== Segment f (Upper-left) =====
-    And(a=notA, b=C, out=f1);   // 使用大写的C
-    And(a=B, b=C, out=f2);      // 使用大写的C
-    And(a=notB, b=C, c=notD, out=f3); // 使用大写的C
-    And(a=notA, b=B, c=D, out=f4);
-    And(a=A, b=notB, c=notC, out=f5);
-    And(a=notB, b=notC, c=notD, out=f6);
-    And(a=A, b=notC, c=notD, out=f7);
-    Or(a=f1, b=f2, out=f8);
-    Or(a=f3, b=f4, out=f9);
-    Or(a=f8, b=f9, out=f10);
-    Or(a=f5, b=f6, out=f11);
-    Or(a=f11, b=f7, out=f12);
-    Or(a=f10, b=f12, out=f);
+    Or(a = P1f, b = P2f, out = fa1);
+    Or(a = fa1, b = P3f, out = fa2);
+    Or(a = fa2, b = P4f, out = fa3);
+    Or(a = fa3, b = P5f, out = fa4);
+    Or(a = fa4, b = P6f, out = f);
 
-    // ===== Segment g (Middle) =====
-    And(a=notA, b=notB, c=notC, out=g1);
-    And(a=notA, b=B, c=notC, d=notD, out=g2);
-    And(a=notA, b=B, c=C, d=D, out=g3);  // 使用大写的C
-    And(a=A, b=notB, c=notC, d=notD, out=g4);
-    And(a=A, b=notB, c=C, d=notD, out=g5); // 使用大写的C
-    And(a=A, b=B, c=notC, d=D, out=g6);
-    Or(a=g1, b=g3, out=g7);
-    Or(a=g4, b=g5, out=g8);
-    Or(a=g2, b=g6, out=g9);
-    Or(a=g7, b=g8, out=g10);
-    Or(a=g10, b=g9, out=g);
-}
+    // --- e 的逻辑 ---
+    Not(in = A, out = NOTAe);
+    Not(in = B, out = NOTBe);
+    Not(in = C, out = NOTCe);
+    Not(in = D, out = NOTDe);
+
+    And(a = A, b = NOTBe, out = P1e);
+    And(a = NOTCe, b = D, out = P2e);
+    And(a = NOTAe, b = B, out = P3e);
+    And(a = NOTAe, b = D, out = P4e);
+    And(a = NOTBe, b = NOTCe, out = P5e);
+
+    Or(a = P1e, b = P2e, out = ea1);
+    Or(a = ea1, b = P3e, out = ea2);
+    Or(a = ea2, b = P4e, out = ea3);
+    Or(a = ea3, b = P5e, out = e);
+
+    // --- c 的逻辑 ---
+    Not(in = A, out = NOTAc);
+    Not(in = B, out = NOTBc);
+    Not(in = C, out = NOTCc);
+    Not(in = D, out = NOTDc);
+
+    And(a = NOTBc, b = C, out = P1c);
+    And(a = C, b = NOTDc, out = P2c);
+    And(a = A, b = NOTBc, out = P3c);
+    And(a = A, b = D, out = P4c);
+    And(a = NOTCc, b = NOTAc, out = tmpc);
+    And(a = B, b = tmpc, out = P5c);
+
+    Or(a = P1c, b = P2c, out = ca1);
+    Or(a = ca1, b = P3c, out = ca2);
+    Or(a = ca2, b = P4c, out = ca3);
+    Or(a = ca3, b = P5c, out = c);
+
+    // --- d 的逻辑 ---
+    Not(in = A, out = NOTAd);
+    Not(in = B, out = NOTBd);
+    Not(in = C, out = NOTCd);
+    Not(in = D, out = NOTDd);
+
+    And(a = NOTCd, b = NOTDd, out = P1d);
+    And(a = NOTAd, b = B, out = ABd);
+    And(a = ABd, b = NOTCd, out = P2d);
+    And(a = B, b = NOTDd, out = P3d);
+    And(a = A, b = C, out = P4d);
+    And(a = A, b = NOTBd, out = P5d);
+
+    Or(a = P1d, b = P2d, out = da1);
+    Or(a = P3d, b = P4d, out = da2);
+    Or(a = da2, b = P5d, out = da3);
+    Or(a = da1, b = da3, out = d);
+
+    // --- a 的逻辑 ---
+    Not(in = A, out = NOTAa);
+    Not(in = B, out = NOTBa);
+    Not(in = C, out = NOTCa);
+    Not(in = D, out = NOTDa);
+
+    And(a = A, b = B, out = ABa);
+    And(a = ABa, b = NOTDa, out = P1a);
+    And(a = NOTBa, b = NOTCa, out = BCa);
+    And(a = BCa, b = NOTDa, out = P2a);
+    And(a = B, b = NOTCa, out = P3aa);
+    And(a = P3aa, b = D, out = P3a);
+    And(a = NOTAa, b = C, out = P4aa);
+    And(a = P4aa, b = NOTDa, out = P4a);
+    And(a = A, b = NOTBa, out = P5aa);
+    And(a = P5aa, b = D, out = P5a);
+    And(a = NOTAa, b = NOTBa, out = ABa2);
+    And(a = ABa2, b = C, out = P6a);
+
+    Or(a = P1a, b = P2a, out = a1);
+    Or(a = a1, b = P3a, out = a2);
+    Or(a = a2, b = P4a, out = a3);
+    Or(a = a3, b = P5a, out = a4);
+    Or(a = a4, b = P6a, out = a);
+    }
