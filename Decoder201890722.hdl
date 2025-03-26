@@ -1,29 +1,34 @@
-CHIP DecoderSegment201890722 {
-    IN A, B, C, D;
-    OUT a, b, c, d, e, f, g;
+/**
+ * 7-Segment Decoder Implementation
+ * Student ID: 201890722
+ * Implements full hexadecimal (0-F) display decoder
+ */
+CHIP Decoder201890722 {
+    IN A, B, C, D;  // 4-bit input (D is MSB)
+    OUT a, b, c, d, e, f, g;  // Segment outputs
 
     PARTS:
-    // Input inversions (shared across all segments)
+    // Shared input inversions
     Not(in=A, out=notA);
     Not(in=B, out=notB);
     Not(in=C, out=notC);
     Not(in=D, out=notD);
 
-    // Segment a implementation
+    // Segment a (Top segment)
     And(a=notA, b=notB, c=notC, d=D, out=a_term1);
     And(a=notA, b=B, c=notC, d=notD, out=a_term2);
     Or(a=a_term1, b=a_term2, out=a);
 
-    // Segment b implementation (optimized version)
+    // Segment b (Upper-right segment)
     Or(a=C, b=notD, out=b_CorNotD);
     Or(a=notB, b=A, out=b_notBorA);
+    And(a=b_CorNotD, b=B, out=b_pa);
     Or(a=C, b=b_notBorA, out=b_pb);
     Or(a=notD, b=A, out=b_pc);
-    And(a=b_CorNotD, b=B, out=b_pa);
     And(a=b_pa, b=b_pb, out=b_pd);
     And(a=b_pd, b=b_pc, out=b);
 
-    // Segment c implementation (your version)
+    // Segment c (Lower-right segment)
     And(a=notB, b=C, out=cAndnotb);
     And(a=C, b=notD, out=cAndnotd);
     And(a=A, b=notB, out=aAndnotb);
@@ -35,7 +40,7 @@ CHIP DecoderSegment201890722 {
     Or(a=or1, b=or2, out=or3);
     Or(a=or3, b=bandout, out=c);
 
-    // Segment d implementation (optimized)
+    // Segment d (Bottom segment)
     And(a=notA, b=B, c=notC, out=d_term1);
     And(a=A, b=notB, out=d_term2);
     And(a=A, b=C, out=d_term3);
@@ -46,7 +51,7 @@ CHIP DecoderSegment201890722 {
     Or(a=d_term5, b=d_ans2a, out=d_ans2);
     Or(a=d_ans1, b=d_ans2, out=d);
 
-    // Segment e implementation
+    // Segment e (Lower-left segment)
     And(a=notA, b=B, out=e_term1);
     And(a=A, b=notB, out=e_term2);
     And(a=notC, b=D, out=e_term3);
@@ -57,7 +62,7 @@ CHIP DecoderSegment201890722 {
     Or(a=e_inter1, b=e_inter2, out=e_inter3);
     Or(a=e_inter3, b=e_term5, out=e);
 
-    // Segment f implementation
+    // Segment f (Upper-left segment)
     And(a=notA, b=C, out=f_term1);
     And(a=B, b=C, out=f_term2);
     And(a=notB, b=C, c=notD, out=f_term3);
@@ -72,7 +77,7 @@ CHIP DecoderSegment201890722 {
     Or(a=f_inter4, b=f_term7, out=f_inter5);
     Or(a=f_inter3, b=f_inter5, out=f);
 
-    // Segment g implementation
+    // Segment g (Middle segment)
     And(a=notA, b=notB, c=notC, out=g_PartA);
     And(a=notA, b=B, c=notC, d=notD, out=g_PartG);
     And(a=notA, b=B, c=C, d=D, out=g_PartB);
