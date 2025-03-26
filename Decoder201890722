@@ -1,0 +1,87 @@
+CHIP DecoderSegment201890722 {
+    IN A, B, C, D;
+    OUT a, b, c, d, e, f, g;
+
+    PARTS:
+    // Input inversions (shared across all segments)
+    Not(in=A, out=notA);
+    Not(in=B, out=notB);
+    Not(in=C, out=notC);
+    Not(in=D, out=notD);
+
+    // Segment a implementation
+    And(a=notA, b=notB, c=notC, d=D, out=a_term1);
+    And(a=notA, b=B, c=notC, d=notD, out=a_term2);
+    Or(a=a_term1, b=a_term2, out=a);
+
+    // Segment b implementation (optimized version)
+    Or(a=C, b=notD, out=b_CorNotD);
+    Or(a=notB, b=A, out=b_notBorA);
+    Or(a=C, b=b_notBorA, out=b_pb);
+    Or(a=notD, b=A, out=b_pc);
+    And(a=b_CorNotD, b=B, out=b_pa);
+    And(a=b_pa, b=b_pb, out=b_pd);
+    And(a=b_pd, b=b_pc, out=b);
+
+    // Segment c implementation (your version)
+    And(a=notB, b=C, out=cAndnotb);
+    And(a=C, b=notD, out=cAndnotd);
+    And(a=A, b=notB, out=aAndnotb);
+    And(a=A, b=D, out=aandd);
+    And(a=notC, b=notA, out=out1);
+    And(a=B, b=out1, out=bandout);
+    Or(a=cAndnotb, b=cAndnotd, out=or1);
+    Or(a=aAndnotb, b=aandd, out=or2);
+    Or(a=or1, b=or2, out=or3);
+    Or(a=or3, b=bandout, out=c);
+
+    // Segment d implementation (optimized)
+    And(a=notA, b=B, c=notC, out=d_term1);
+    And(a=A, b=notB, out=d_term2);
+    And(a=A, b=C, out=d_term3);
+    And(a=notC, b=notD, out=d_term4);
+    And(a=B, b=notD, out=d_term5);
+    Or(a=d_term1, b=d_term2, out=d_ans1);
+    Or(a=d_term3, b=d_term4, out=d_ans2a);
+    Or(a=d_term5, b=d_ans2a, out=d_ans2);
+    Or(a=d_ans1, b=d_ans2, out=d);
+
+    // Segment e implementation
+    And(a=notA, b=B, out=e_term1);
+    And(a=A, b=notB, out=e_term2);
+    And(a=notC, b=D, out=e_term3);
+    And(a=notA, b=notC, out=e_term4);
+    And(a=notA, b=D, out=e_term5);
+    Or(a=e_term1, b=e_term2, out=e_inter1);
+    Or(a=e_term3, b=e_term4, out=e_inter2);
+    Or(a=e_inter1, b=e_inter2, out=e_inter3);
+    Or(a=e_inter3, b=e_term5, out=e);
+
+    // Segment f implementation
+    And(a=notA, b=C, out=f_term1);
+    And(a=B, b=C, out=f_term2);
+    And(a=notB, b=C, c=notD, out=f_term3);
+    And(a=notA, b=B, c=D, out=f_term4);
+    And(a=A, b=notB, c=notC, out=f_term5);
+    And(a=notB, b=notC, c=notD, out=f_term6);
+    And(a=A, b=notC, c=notD, out=f_term7);
+    Or(a=f_term1, b=f_term2, out=f_inter1);
+    Or(a=f_term3, b=f_term4, out=f_inter2);
+    Or(a=f_inter1, b=f_inter2, out=f_inter3);
+    Or(a=f_term5, b=f_term6, out=f_inter4);
+    Or(a=f_inter4, b=f_term7, out=f_inter5);
+    Or(a=f_inter3, b=f_inter5, out=f);
+
+    // Segment g implementation
+    And(a=notA, b=notB, c=notC, out=g_PartA);
+    And(a=notA, b=B, c=notC, d=notD, out=g_PartG);
+    And(a=notA, b=B, c=C, d=D, out=g_PartB);
+    And(a=A, b=notB, c=notC, d=notD, out=g_PartC);
+    And(a=A, b=notB, c=C, d=notD, out=g_PartD);
+    And(a=A, b=B, c=notC, d=D, out=g_PartE);
+    Or(a=g_PartA, b=g_PartB, out=g_FirstThird);
+    Or(a=g_PartC, b=g_PartD, out=g_SecondThird);
+    Or(a=g_PartE, b=g_PartG, out=g_ThirdThirds);
+    Or(a=g_FirstThird, b=g_SecondThird, out=g_TwoThirds);
+    Or(a=g_TwoThirds, b=g_ThirdThirds, out=g);
+}
